@@ -13,10 +13,8 @@ export const loadingStop = () => {
 };
 
 export const setUser = (user) => (dispatch) => {
-  dispatch(loadingStart());
   dispatch({
     type: SET_USER,
     payload: user,
   });
-  dispatch(loadingStop());
 };

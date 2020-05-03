@@ -13,6 +13,7 @@ import reducers from "./redux/reducers";
 import { Provider, connect } from "react-redux";
 import thunk from "redux-thunk";
 import { setUser } from "./redux/actions";
+import Spinner from "./components/spinner/Spinner";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -28,6 +29,7 @@ class Root extends React.Component {
     });
   }
   render() {
+    if (this.props.loading) return <Spinner />;
     return (
       <Switch>
         <Route exact path="/" component={App} />
@@ -37,7 +39,14 @@ class Root extends React.Component {
     );
   }
 }
-const RootWithRouter = withRouter(connect(null, { setUser })(Root));
+
+const mapStateToProps = (state) => {
+  return {
+    loading: state.user.loading,
+  };
+};
+
+const RootWithRouter = withRouter(connect(mapStateToProps, { setUser })(Root));
 ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>

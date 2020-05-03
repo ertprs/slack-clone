@@ -6,12 +6,12 @@ import {
 
 const INITIAL_STATE = {
   currentUser: null,
-  loading: false,
+  loading: true,
 };
 export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case SET_USER:
-      return { ...state, currentUser: action.payload };
+      return { ...state, currentUser: action.payload, loading: false };
     case LOADING_START:
       return { ...state, loading: true };
     case LOADING_STOP:
