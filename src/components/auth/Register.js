@@ -10,6 +10,7 @@ import {
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import firebase from "../../firebase";
+import md5 from "md5";
 
 export class Register extends Component {
   state = {
@@ -19,6 +20,7 @@ export class Register extends Component {
     confirmPassword: "",
     loading: false,
     errors: [],
+    usersRef: firebase.database().ref("users"),
   };
 
   isFormValidTest = () => {
@@ -56,7 +58,7 @@ export class Register extends Component {
   handleSubmit = async (event) => {
     event.preventDefault();
     if (this.isFormValidTest()) {
-      this.setState({ loading: true });
+      this.setState({ loading: true, errors: [] });
       try {
         const createdUser = await firebase
           .auth()
@@ -64,10 +66,21 @@ export class Register extends Component {
             this.state.email,
             this.state.password
           );
+        await createdUser.user.updateProfile({
+          displayName: this.state.username,
+          photoURL: `http://gravatar.com/avatar/${md5(
+            createdUser.user.email
+          )}?d=identicon`,
+        });
+        await this.savedUser(createdUser);
         this.setState({ loading: false });
+
         console.log(createdUser);
       } catch (error) {
-        this.setState({ loading: false });
+        this.setState({
+          loading: false,
+          errors: this.state.errors.concat(error),
+        });
         console.log(error);
       }
     }
@@ -81,14 +94,29 @@ export class Register extends Component {
       email: "",
     });
   };
+  savedUser = (createdUser) => {
+    return this.state.usersRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoURL,
+    });
+  };
   displayErrors = (errors) =>
     errors.map((error, index) => <p key={index}>{error.message}</p>);
+
+  handleInputError = (errors, inputName) => {
+    return errors.some((error) =>
+      error.message.toLowerCase().includes(inputName)
+    )
+      ? "error"
+      : "";
+  };
+
   render() {
     const { password, confirmPassword, username, email, errors } = this.state;
     return (
       <Grid textAlign="center" verticalAlign="middle" className="app">
         <Grid.Column style={{ maxWidth: 450 }}>
-          <Header as="h2" icon color="orange" textAlign="center">
+          <Header as="h1" icon color="orange" textAlign="center">
             <Icon name="puzzle piece" color="orange" />
             Register for SlackChat
           </Header>
@@ -113,6 +141,7 @@ export class Register extends Component {
                 onChange={this.handleChange}
                 value={email}
                 type="email"
+                className={this.handleInputError(errors, "email")}
               />
               <Form.Input
                 fluid
@@ -123,6 +152,7 @@ export class Register extends Component {
                 onChange={this.handleChange}
                 value={password}
                 type="password"
+                className={this.handleInputError(errors, "password")}
               />
               <Form.Input
                 fluid
@@ -133,9 +163,11 @@ export class Register extends Component {
                 onChange={this.handleChange}
                 value={confirmPassword}
                 type="password"
+                className={this.handleInputError(errors, "password")}
               />
               <Button
                 loading={this.state.loading}
+                disabled={this.state.loading}
                 color="orange"
                 fluid
                 size="large"
