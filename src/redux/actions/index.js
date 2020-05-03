@@ -1,4 +1,10 @@
-import { SET_USER, LOADING_START, LOADING_STOP } from "./utils/actionTypes";
+import {
+  SET_USER,
+  LOADING_START,
+  LOADING_STOP,
+  CLEAR_USER,
+  SET_CURRENT_CHANNEL,
+} from "./utils/actionTypes";
 
 export const loadingStart = () => {
   return {
@@ -17,4 +23,17 @@ export const setUser = (user) => (dispatch) => {
     type: SET_USER,
     payload: user,
   });
+};
+
+export const clearUser = () => {
+  return {
+    type: CLEAR_USER,
+  };
+};
+
+export const setCurrentChannel = (channel) => {
+  return {
+    type: SET_CURRENT_CHANNEL,
+    payload: channel,
+  };
 };

@@ -12,7 +12,7 @@ import { createStore, compose, applyMiddleware } from "redux";
 import reducers from "./redux/reducers";
 import { Provider, connect } from "react-redux";
 import thunk from "redux-thunk";
-import { setUser } from "./redux/actions";
+import { setUser, clearUser } from "./redux/actions";
 import Spinner from "./components/spinner/Spinner";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -25,6 +25,9 @@ class Root extends React.Component {
       if (user) {
         this.props.setUser(user);
         this.props.history.push("/");
+      } else {
+        this.props.clearUser();
+        this.props.history.push("/login");
       }
     });
   }
@@ -46,7 +49,9 @@ const mapStateToProps = (state) => {
   };
 };
 
-const RootWithRouter = withRouter(connect(mapStateToProps, { setUser })(Root));
+const RootWithRouter = withRouter(
+  connect(mapStateToProps, { setUser, clearUser })(Root)
+);
 ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>
