@@ -76,7 +76,7 @@ export class MessagesForm extends Component {
           "state_changed",
           (snap) => {
             const percentageUploaded = Math.round(
-              (snap.bytesTransfered / snap.totalBytes) * 100
+              (snap.bytesTransferred / snap.totalBytes) * 100
             );
             this.setState({ percentageUploaded });
           },
@@ -158,6 +158,7 @@ export class MessagesForm extends Component {
             closeModal={this.closeModal}
             modal={modal}
             uploadState={this.state.uploadState}
+            percentageUploaded={this.state.percentageUploaded}
           />
         </Button.Group>
       </Segment>

@@ -14,7 +14,7 @@ function App({ currentChannel }) {
       <SidePanel />
       <Grid.Column style={{ marginLeft: 320 }}>
         {currentChannel ? (
-          <Messages currentChannel={currentChannel} />
+          <Messages key={currentChannel.id} currentChannel={currentChannel} />
         ) : (
           <Spinner />
         )}

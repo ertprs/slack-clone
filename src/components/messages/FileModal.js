@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Modal, Input, Button, Icon } from "semantic-ui-react";
 import mime from "mime-types";
+import ProgressBar from "./ProgressBar";
 export class FileModal extends Component {
   state = {
     file: null,
@@ -21,7 +22,7 @@ export class FileModal extends Component {
     }
   };
   render() {
-    const { modal, closeModal, uploadState } = this.props;
+    const { modal, closeModal, uploadState, percentageUploaded } = this.props;
 
     return (
       <Modal basic open={modal} onClose={closeModal}>
@@ -39,6 +40,7 @@ export class FileModal extends Component {
           <Button
             color="green"
             loading={uploadState === "uploading" && true}
+            disabled={uploadState === "uploading" && true}
             inverted
             onClick={this.sendFile}
           >
@@ -48,6 +50,10 @@ export class FileModal extends Component {
             <Icon name="remove" /> Cancel
           </Button>
         </Modal.Actions>
+        <ProgressBar
+          percentageUploaded={percentageUploaded}
+          uploadState={uploadState}
+        />
       </Modal>
     );
   }

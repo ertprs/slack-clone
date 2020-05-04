@@ -27,3 +27,13 @@ body,
 .message__image {
   padding: 1em;
 }
+
+.progress__bar {
+  margin: 0.3em 0 0 0;
+}
+
+@media (max-width: 1103px) {
+  .messages {
+    height: 340px;
+  }
+}

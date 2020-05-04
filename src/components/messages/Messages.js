@@ -11,6 +11,9 @@ export class Messages extends Component {
     messagesRef: firebase.database().ref("messages"),
     messages: [],
     messagesLoading: true,
+    numUniqueUsers: null,
+    searchTerm: "",
+    filteredMessages: [],
   };
   componentDidMount() {
     const { currentChannel, currentUser } = this.props;
@@ -22,6 +25,7 @@ export class Messages extends Component {
         .on("child_added", (snapshot) => {
           loadedMessages.push(snapshot.val());
           this.setState({ messages: loadedMessages, messagesLoading: false });
+          this.countUsers(loadedMessages);
         });
     }
   }
@@ -29,24 +33,54 @@ export class Messages extends Component {
     const { currentChannel } = this.props;
     this.state.messagesRef.child(currentChannel.id).off();
   }
+  countUsers = (loadedMessages) => {
+    const uniqueNames = loadedMessages.reduce((acc, message) => {
+      if (!acc.includes(message.user.name)) {
+        acc.push(message.user.name);
+      }
+      return acc;
+    }, []);
+    this.setState({ numUniqueUsers: uniqueNames.length });
+  };
+  handleSearchChange = (event) => {
+    this.setState({
+      searchTerm: event.target.value,
+    });
+  };
   render() {
-    const { messagesRef, messages } = this.state;
-    const { currentUser } = this.props;
-
+    const { messagesRef, messages, numUniqueUsers, searchTerm } = this.state;
+    const { currentUser, currentChannel } = this.props;
+    const newMessages = this.state.messages.filter(
+      (message) =>
+        message.content &&
+        message.content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     return (
       <React.Fragment>
-        <MessagesHeader />
+        <MessagesHeader
+          messages={messages}
+          currentChannel={currentChannel}
+          numUniqueUsers={numUniqueUsers}
+          handleSearchChange={this.handleSearchChange}
+        />
         <Segment>
           <Comment.Group className="messages">
-            {/* MESSAGES */}
-            {messages.length > 0 &&
-              messages.map((message) => (
-                <SingleMessage
-                  key={message.timestamp}
-                  message={message}
-                  user={currentUser}
-                />
-              ))}
+            {searchTerm.length > 0
+              ? newMessages.map((message) => (
+                  <SingleMessage
+                    key={message.timestamp}
+                    message={message}
+                    user={currentUser}
+                  />
+                ))
+              : messages.length > 0 &&
+                messages.map((message) => (
+                  <SingleMessage
+                    key={message.timestamp}
+                    message={message}
+                    user={currentUser}
+                  />
+                ))}
           </Comment.Group>
         </Segment>
         <MessagesForm messagesRef={messagesRef} />
