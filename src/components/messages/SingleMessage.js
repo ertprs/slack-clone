@@ -1,12 +1,10 @@
 import React from "react";
-import { Comment } from "semantic-ui-react";
+import { Comment, Image } from "semantic-ui-react";
 import moment from "moment";
 
 const timeFromNow = (timestamp) => moment(timestamp).fromNow();
 
 const SingleMessage = ({ message, user }) => {
-  console.log("message", message);
-  console.log("user", user);
   return (
     <Comment>
       <Comment.Avatar src={message.user.avatar} />
@@ -15,7 +13,12 @@ const SingleMessage = ({ message, user }) => {
       >
         <Comment.Author as="a">{message.user.name} </Comment.Author>
         <Comment.Metadata>{timeFromNow(message.timestamp)}</Comment.Metadata>
-        <Comment.Text>{message.content}</Comment.Text>
+        {message.hasOwnProperty("image") &&
+        !message.hasOwnProperty("content") ? (
+          <Image src={message.image} className="message__image" />
+        ) : (
+          <Comment.Text>{message.content}</Comment.Text>
+        )}
       </Comment.Content>
     </Comment>
   );

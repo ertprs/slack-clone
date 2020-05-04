@@ -21,10 +21,12 @@ const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)));
 
 class Root extends React.Component {
   componentDidMount() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
-        this.props.setUser(user);
-        this.props.history.push("/");
+        await this.props.setUser(user);
+        if (user.displayName) {
+          this.props.history.push("/");
+        }
       } else {
         this.props.clearUser();
         this.props.history.push("/login");

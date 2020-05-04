@@ -5,6 +5,7 @@ import SidePanel from "./sidePanel/SidePanel";
 import Messages from "./messages/Messages";
 import MetaPanel from "./metaPanel/MetaPanel";
 import { connect } from "react-redux";
+import Spinner from "./spinner/Spinner";
 
 function App({ currentChannel }) {
   return (
@@ -12,7 +13,11 @@ function App({ currentChannel }) {
       <ColorPanel />
       <SidePanel />
       <Grid.Column style={{ marginLeft: 320 }}>
-        {currentChannel && <Messages currentChannel={currentChannel} />}
+        {currentChannel ? (
+          <Messages currentChannel={currentChannel} />
+        ) : (
+          <Spinner />
+        )}
       </Grid.Column>
       <Grid.Column width={4}>
         <MetaPanel />

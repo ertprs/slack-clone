@@ -4,7 +4,6 @@ import MessagesForm from "./MessagesForm";
 import MessagesHeader from "./MessagesHeader";
 import firebase from "../../firebase";
 import { connect } from "react-redux";
-import Message from "./SingleMessage";
 import SingleMessage from "./SingleMessage";
 
 export class Messages extends Component {

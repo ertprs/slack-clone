@@ -29,11 +29,11 @@ export class Login extends Component {
     if (this.isFormValidTest(this.state)) {
       this.setState({ loading: true, errors: [] });
       try {
-        const signedInUser = await firebase
+        await firebase
           .auth()
           .signInWithEmailAndPassword(this.state.email, this.state.password);
         this.setState({ loading: false });
-        console.log(signedInUser);
+        this.props.history.push("/");
       } catch (error) {
         this.setState({
           loading: false,

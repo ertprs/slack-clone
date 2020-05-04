@@ -74,8 +74,7 @@ export class Register extends Component {
         });
         await this.savedUser(createdUser);
         this.setState({ loading: false });
-
-        console.log(createdUser);
+        this.props.history.push("/");
       } catch (error) {
         this.setState({
           loading: false,
