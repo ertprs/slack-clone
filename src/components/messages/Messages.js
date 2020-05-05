@@ -10,13 +10,15 @@ export class Messages extends Component {
   state = {
     messagesRef: firebase.database().ref("messages"),
     privateMessagesRef: firebase.database().ref("privateMessages"),
+    usersRef: firebase.database().ref("users"),
     messages: [],
     messagesLoading: true,
     numUniqueUsers: null,
     searchTerm: "",
     filteredMessages: [],
+    isChannelStarred: false,
   };
-  componentDidMount() {
+  async componentDidMount() {
     const { currentChannel, currentUser } = this.props;
 
     if (currentChannel && currentUser) {
@@ -28,6 +30,18 @@ export class Messages extends Component {
           this.setState({ messages: loadedMessages, messagesLoading: false });
           this.countUsers(loadedMessages);
         });
+
+      //FETCHING STARRED FROM FIREBASE
+      const data = await this.state.usersRef
+        .child(currentUser.uid)
+        .child("starred")
+        .once("value");
+      if (data.val() !== null) {
+        const starredChannelVal = Object.keys(data.val()).includes(
+          currentChannel.id
+        );
+        this.setState({ isChannelStarred: starredChannelVal });
+      }
     }
   }
   componentWillUnmount() {
@@ -53,9 +67,33 @@ export class Messages extends Component {
     const { messagesRef, privateMessagesRef } = this.state;
     return isPrivateChannel ? privateMessagesRef : messagesRef;
   };
+  handleStar = () => {
+    const { currentChannel, currentUser } = this.props;
+
+    this.setState({ isChannelStarred: !this.state.isChannelStarred }, () => {
+      if (this.state.isChannelStarred) {
+        this.state.usersRef.child(`${currentUser.uid}/starred`).update({
+          [currentChannel.id]: {
+            name: currentChannel.name,
+            details: currentChannel.details,
+            createdBy: {
+              name: currentChannel.createdBy.name,
+              avatar: currentChannel.createdBy.avatar,
+            },
+          },
+        });
+      } else {
+        this.state.usersRef
+          .child(`${currentUser.uid}/starred`)
+          .child(currentChannel.id)
+          .remove((err) => err && console.log(err));
+      }
+    });
+  };
   render() {
     const { messages, numUniqueUsers, searchTerm } = this.state;
     const { currentUser, currentChannel } = this.props;
+
     const newMessages = this.state.messages.filter(
       (message) =>
         (message.content &&
@@ -70,6 +108,8 @@ export class Messages extends Component {
           currentChannel={currentChannel}
           numUniqueUsers={numUniqueUsers}
           handleSearchChange={this.handleSearchChange}
+          handleStar={this.handleStar}
+          isChannelStarred={this.state.isChannelStarred}
         />
         <Segment>
           <Comment.Group className="messages">

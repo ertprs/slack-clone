@@ -4,6 +4,7 @@ import UserPanel from "./UserPanel";
 import Channels from "./Channels";
 import DirectMessages from "../messages/DirectMessages";
 import { connect } from "react-redux";
+import Starred from "./Starred";
 
 export class SidePanel extends Component {
   render() {
@@ -17,6 +18,7 @@ export class SidePanel extends Component {
         style={{ background: "#4c3c4c", fontSize: "1.2rem" }}
       >
         <UserPanel />
+        <Starred />
         <Channels />
         {currentUser && (
           <DirectMessages currentUser={currentUser} key={currentUser.uid} />
