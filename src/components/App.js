@@ -7,7 +7,7 @@ import MetaPanel from "./metaPanel/MetaPanel";
 import { connect } from "react-redux";
 import Spinner from "./spinner/Spinner";
 
-function App({ currentChannel }) {
+function App({ currentChannel, isPrivateChannel }) {
   return (
     <Grid columns="equal" className="app" style={{ background: "#eee" }}>
       <ColorPanel />
@@ -20,7 +20,7 @@ function App({ currentChannel }) {
         )}
       </Grid.Column>
       <Grid.Column width={4}>
-        <MetaPanel />
+        {!isPrivateChannel && currentChannel && <MetaPanel />}
       </Grid.Column>
     </Grid>
   );
@@ -28,6 +28,7 @@ function App({ currentChannel }) {
 const mapStateToProps = (state) => {
   return {
     currentChannel: state.channel.currentChannel,
+    isPrivateChannel: state.channel.isPrivateChannel,
   };
 };
 export default connect(mapStateToProps)(App);

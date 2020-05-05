@@ -18,7 +18,7 @@ export class SidePanel extends Component {
         style={{ background: "#4c3c4c", fontSize: "1.2rem" }}
       >
         <UserPanel />
-        <Starred />
+        {currentUser && <Starred currentUser={currentUser} />}
         <Channels />
         {currentUser && (
           <DirectMessages currentUser={currentUser} key={currentUser.uid} />

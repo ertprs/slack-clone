@@ -5,6 +5,7 @@ import MessagesHeader from "./MessagesHeader";
 import firebase from "../../firebase";
 import { connect } from "react-redux";
 import SingleMessage from "./SingleMessage";
+import { setUserPosts } from "../../redux/actions";
 
 export class Messages extends Component {
   state = {
@@ -29,8 +30,8 @@ export class Messages extends Component {
           loadedMessages.push(snapshot.val());
           this.setState({ messages: loadedMessages, messagesLoading: false });
           this.countUsers(loadedMessages);
+          this.countUserPosts(loadedMessages);
         });
-
       //FETCHING STARRED FROM FIREBASE
       const data = await this.state.usersRef
         .child(currentUser.uid)
@@ -48,6 +49,20 @@ export class Messages extends Component {
     const { currentChannel } = this.props;
     this.getMessagesRef().child(currentChannel.id).off();
   }
+  countUserPosts = (messages) => {
+    const userPosts = messages.reduce((acc, message) => {
+      if (message.user.name in acc) {
+        acc[message.user.name].count += 1;
+      } else {
+        acc[message.user.name] = {
+          avatar: message.user.avatar,
+          count: 1,
+        };
+      }
+      return acc;
+    }, {});
+    this.props.setUserPosts(userPosts);
+  };
   countUsers = (loadedMessages) => {
     const uniqueNames = loadedMessages.reduce((acc, message) => {
       if (!acc.includes(message.user.name)) {
@@ -144,4 +159,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(Messages);
+export default connect(mapStateToProps, { setUserPosts })(Messages);
