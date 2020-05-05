@@ -31,7 +31,9 @@ body,
 .progress__bar {
   margin: 0.3em 0 0 0;
 }
-
+.menu {
+  padding-bottom: 2em;
+}
 @media (max-width: 1103px) {
   .messages {
     height: 340px;

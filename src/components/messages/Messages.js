@@ -9,6 +9,7 @@ import SingleMessage from "./SingleMessage";
 export class Messages extends Component {
   state = {
     messagesRef: firebase.database().ref("messages"),
+    privateMessagesRef: firebase.database().ref("privateMessages"),
     messages: [],
     messagesLoading: true,
     numUniqueUsers: null,
@@ -20,7 +21,7 @@ export class Messages extends Component {
 
     if (currentChannel && currentUser) {
       let loadedMessages = [];
-      this.state.messagesRef
+      this.getMessagesRef()
         .child(currentChannel.id)
         .on("child_added", (snapshot) => {
           loadedMessages.push(snapshot.val());
@@ -31,7 +32,7 @@ export class Messages extends Component {
   }
   componentWillUnmount() {
     const { currentChannel } = this.props;
-    this.state.messagesRef.child(currentChannel.id).off();
+    this.getMessagesRef().child(currentChannel.id).off();
   }
   countUsers = (loadedMessages) => {
     const uniqueNames = loadedMessages.reduce((acc, message) => {
@@ -47,13 +48,20 @@ export class Messages extends Component {
       searchTerm: event.target.value,
     });
   };
+  getMessagesRef = () => {
+    const { isPrivateChannel } = this.props;
+    const { messagesRef, privateMessagesRef } = this.state;
+    return isPrivateChannel ? privateMessagesRef : messagesRef;
+  };
   render() {
-    const { messagesRef, messages, numUniqueUsers, searchTerm } = this.state;
+    const { messages, numUniqueUsers, searchTerm } = this.state;
     const { currentUser, currentChannel } = this.props;
     const newMessages = this.state.messages.filter(
       (message) =>
-        message.content &&
-        message.content.toLowerCase().includes(searchTerm.toLowerCase())
+        (message.content &&
+          message.content.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (message.user.name &&
+          message.user.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     return (
       <React.Fragment>
@@ -83,7 +91,7 @@ export class Messages extends Component {
                 ))}
           </Comment.Group>
         </Segment>
-        <MessagesForm messagesRef={messagesRef} />
+        <MessagesForm getMessagesRef={this.getMessagesRef} />
       </React.Fragment>
     );
   }
@@ -92,6 +100,7 @@ export class Messages extends Component {
 const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
+    isPrivateChannel: state.channel.isPrivateChannel,
   };
 };
 
