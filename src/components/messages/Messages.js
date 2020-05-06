@@ -6,6 +6,7 @@ import firebase from "../../firebase";
 import { connect } from "react-redux";
 import SingleMessage from "./SingleMessage";
 import { setUserPosts } from "../../redux/actions";
+import Typing from "./Typing";
 
 export class Messages extends Component {
   state = {
@@ -18,6 +19,9 @@ export class Messages extends Component {
     searchTerm: "",
     filteredMessages: [],
     isChannelStarred: false,
+    typingRef: firebase.database().ref("typing"),
+    typingUsers: [],
+    connectedRef: firebase.database().ref(".info/connect"),
   };
   async componentDidMount() {
     const { currentChannel, currentUser } = this.props;
@@ -43,6 +47,39 @@ export class Messages extends Component {
         );
         this.setState({ isChannelStarred: starredChannelVal });
       }
+      const { typingRef, connectedRef } = this.state;
+      // SETUP TYPING USERS
+      let typingUsers = [];
+      typingRef.child(currentChannel.id).on("child_added", (snap) => {
+        if (snap.key !== currentUser.uid) {
+          typingUsers = typingUsers.concat({
+            id: snap.key,
+            name: snap.val(),
+          });
+          this.setState({ typingUsers });
+        }
+      });
+
+      typingRef.child(currentChannel.id).on("child_removed", (snap) => {
+        const index = typingUsers.findIndex((user) => user.id === snap.key);
+        if (index !== -1) {
+          typingUsers = typingUsers.filter((user) => user.id !== snap.key);
+          this.setState({ typingUsers });
+        }
+      });
+      connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+          typingRef
+            .child(currentChannel.id)
+            .child(currentUser.uid)
+            .onDisconnect()
+            .remove((err) => {
+              if (err !== null) {
+                console.log(err);
+              }
+            });
+        }
+      });
     }
   }
   componentWillUnmount() {
@@ -106,7 +143,7 @@ export class Messages extends Component {
     });
   };
   render() {
-    const { messages, numUniqueUsers, searchTerm } = this.state;
+    const { messages, numUniqueUsers, searchTerm, typingUsers } = this.state;
     const { currentUser, currentChannel } = this.props;
 
     const newMessages = this.state.messages.filter(
@@ -131,7 +168,7 @@ export class Messages extends Component {
             {searchTerm.length > 0
               ? newMessages.map((message) => (
                   <SingleMessage
-                    key={message.timestamp}
+                    key={Math.random()}
                     message={message}
                     user={currentUser}
                   />
@@ -139,14 +176,31 @@ export class Messages extends Component {
               : messages.length > 0 &&
                 messages.map((message) => (
                   <SingleMessage
-                    key={message.timestamp}
+                    key={Math.random()}
                     message={message}
                     user={currentUser}
                   />
                 ))}
+            {typingUsers.length > 0 &&
+              typingUsers.map((user) => (
+                <div
+                  key={user.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "0.2em",
+                  }}
+                >
+                  <span className="user__typing">{user.name} is typing</span>{" "}
+                  <Typing />
+                </div>
+              ))}
           </Comment.Group>
         </Segment>
-        <MessagesForm getMessagesRef={this.getMessagesRef} />
+        <MessagesForm
+          key={currentUser.uid}
+          getMessagesRef={this.getMessagesRef}
+        />
       </React.Fragment>
     );
   }

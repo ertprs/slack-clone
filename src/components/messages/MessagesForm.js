@@ -15,14 +15,15 @@ export class MessagesForm extends Component {
     uploadTask: null,
     uploadState: "",
     percentageUploaded: 0,
+    typingRef: firebase.database().ref("typing"),
   };
   openModal = () => this.setState({ modal: true });
   closeModal = () => this.setState({ modal: false });
   handleChange = (event) =>
     this.setState({ [event.target.name]: event.target.value });
   sendMessage = async () => {
-    const { getMessagesRef, currentChannel } = this.props;
-    const { message } = this.state;
+    const { getMessagesRef, currentChannel, currentUser } = this.props;
+    const { message, typingRef } = this.state;
     if (message.trim()) {
       this.setState({ loading: true });
       try {
@@ -30,7 +31,11 @@ export class MessagesForm extends Component {
           .child(currentChannel.id)
           .push()
           .set(this.createMessage());
-        this.setState({ message: "", loading: false, errors: [] });
+        this.setState(
+          { message: "", loading: false, errors: [] },
+
+          typingRef.child(currentChannel.id).child(currentUser.uid).remove()
+        );
       } catch (error) {
         console.log(error);
         this.setState({
@@ -125,6 +130,19 @@ export class MessagesForm extends Component {
       this.setState({ errors: this.state.errors.concat(error) });
     }
   };
+  handleKeyUp = () => {
+    const { message, typingRef } = this.state;
+    const { currentChannel, currentUser } = this.props;
+
+    if (message !== "") {
+      typingRef
+        .child(currentChannel.id)
+        .child(currentUser.uid)
+        .set(currentUser.displayName);
+    } else {
+      typingRef.child(currentChannel.id).child(currentUser.uid).remove();
+    }
+  };
   render() {
     const { modal } = this.state;
     return (
@@ -137,6 +155,7 @@ export class MessagesForm extends Component {
           labelPosition="left"
           placeholder="Write your Message"
           onChange={this.handleChange}
+          onKeyUp={this.handleKeyUp}
           className={
             this.state.errors.some((error) => error.message.includes("message"))
               ? "error"

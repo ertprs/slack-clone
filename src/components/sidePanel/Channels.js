@@ -22,6 +22,7 @@ export class Channels extends Component {
     channelName: "",
     channelDetails: "",
     channelsRef: firebase.database().ref("channels"),
+    typingRef: firebase.database().ref("typing"),
   };
   componentDidMount() {
     let loadedChannels = [];
@@ -103,8 +104,11 @@ export class Channels extends Component {
     this.setState({ channelName: "", channelDetails: "", modal: false });
   };
   changeChannel = (channel) => {
+    const { currentUser, currentChannel } = this.props;
+    const { typingRef } = this.state;
     this.props.setCurrentChannel(channel);
     this.props.setPrivateChannel(false);
+    typingRef.child(currentChannel.id).child(currentUser.uid).remove();
     this.setState({ channel });
     this.clearNotifications();
   };
