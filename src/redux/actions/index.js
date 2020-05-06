@@ -6,6 +6,7 @@ import {
   SET_CURRENT_CHANNEL,
   SET_PRIVATE_CHANNEL,
   SET_USER_POSTS,
+  SET_COLORS,
 } from "./utils/actionTypes";
 
 export const loadingStart = () => {
@@ -51,5 +52,15 @@ export const setUserPosts = (userPosts) => {
   return {
     type: SET_USER_POSTS,
     payload: userPosts,
+  };
+};
+
+export const setColors = (primaryColor, secondaryColor) => {
+  return {
+    type: SET_COLORS,
+    payload: {
+      primaryColor,
+      secondaryColor,
+    },
   };
 };
