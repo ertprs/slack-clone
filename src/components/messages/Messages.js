@@ -86,6 +86,11 @@ export class Messages extends Component {
     const { currentChannel } = this.props;
     this.getMessagesRef().child(currentChannel.id).off();
   }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.messagesEnd) {
+      this.messagesEnd.scrollIntoView();
+    }
+  }
   countUserPosts = (messages) => {
     const userPosts = messages.reduce((acc, message) => {
       if (message.user.name in acc) {
@@ -195,6 +200,7 @@ export class Messages extends Component {
                   <Typing />
                 </div>
               ))}
+            <div ref={(node) => (this.messagesEnd = node)}></div>
           </Comment.Group>
         </Segment>
         <MessagesForm

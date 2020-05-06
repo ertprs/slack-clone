@@ -5,7 +5,7 @@ import SidePanel from "./sidePanel/SidePanel";
 import Messages from "./messages/Messages";
 import MetaPanel from "./metaPanel/MetaPanel";
 import { connect } from "react-redux";
-import Spinner from "./spinner/Spinner";
+import Skeleton from "./messages/Skeleton";
 
 function App({
   currentChannel,
@@ -25,7 +25,7 @@ function App({
         {currentChannel ? (
           <Messages key={currentChannel.id} currentChannel={currentChannel} />
         ) : (
-          <Spinner />
+          [...Array(10)].map((_, i) => <Skeleton key={i} />)
         )}
       </Grid.Column>
       <Grid.Column width={4}>
