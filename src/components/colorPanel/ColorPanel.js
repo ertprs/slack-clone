@@ -35,7 +35,9 @@ export class ColorPanel extends Component {
     }
   }
   componentWillUnmount() {
-    this.state.usersRef.child(`${this.props.currentUser.uid}/colors`).off();
+    if (this.props.currentUser) {
+      this.state.usersRef.child(`${this.props.currentUser.uid}/colors`).off();
+    }
   }
   openModal = () => this.setState({ modal: true });
   closeModal = () => this.setState({ modal: false });
