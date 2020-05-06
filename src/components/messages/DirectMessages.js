@@ -51,7 +51,11 @@ export class DirectMessages extends Component {
       }
     });
   }
-
+  componentWillUnmount() {
+    this.state.usersRef.off();
+    this.state.prescenceRef.off();
+    this.state.connectedRef.off();
+  }
   addStatusToUser = (userId, connected = true) => {
     const updatedUsers = this.state.users.reduce((acc, user) => {
       if (user.uid === userId) {

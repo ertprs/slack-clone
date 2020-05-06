@@ -33,6 +33,9 @@ export class Starred extends Component {
         this.setState({ starredChannels: filteredChannels });
       });
   }
+  componentWillUnmount() {
+    this.state.usersRef.child(`${this.props.currentUser.uid}/starred`).off();
+  }
   setActiveChannel = (channel) => {
     this.setState({ activeChannel: channel.id });
   };

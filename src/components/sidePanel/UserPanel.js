@@ -89,7 +89,7 @@ export class UserPanel extends Component {
     this.setState({ loading: true });
     try {
       const snap = await storageRef
-        .child(`avatars/user-${userRef.uid}`)
+        .child(`avatars/user/${userRef.uid}`)
         .put(blob, metadata);
       const downloadURL = await snap.ref.getDownloadURL();
       this.setState({ uploadedCroppedImage: downloadURL });

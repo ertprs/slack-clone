@@ -85,6 +85,8 @@ export class Messages extends Component {
   componentWillUnmount() {
     const { currentChannel } = this.props;
     this.getMessagesRef().child(currentChannel.id).off();
+    this.state.typingRef.child(currentChannel.id).off();
+    this.state.connectedRef.off();
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.messagesEnd) {

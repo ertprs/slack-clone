@@ -20,6 +20,12 @@ export class MessagesForm extends Component {
     typingRef: firebase.database().ref("typing"),
     emojiPicker: false,
   };
+  componentWillUnmount() {
+    if (this.state.uploadTask !== null) {
+      this.state.uploadTask.cancel();
+      this.setState({ uploadTask: null });
+    }
+  }
   openModal = () => this.setState({ modal: true });
   closeModal = () => this.setState({ modal: false });
   handleChange = (event) =>
@@ -70,7 +76,7 @@ export class MessagesForm extends Component {
   getPath = () => {
     const { isPrivateChannel, currentChannel } = this.props;
     if (isPrivateChannel) {
-      return `chat/private-${currentChannel.id}`;
+      return `chat/private/${currentChannel.id}`;
     } else {
       return `chat/public`;
     }
